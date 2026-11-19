@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60" width="240" height="60" fill="none">
+  <!-- Mark Background -->
+  <rect x="4" y="6" width="48" height="48" rx="12" fill="#216B45" />
+  
+  <!-- Milk Drop Icon inside mark -->
+  <path d="M28 16C28 16 18 29 18 34C18 39.5228 22.4772 44 28 44C33.5228 44 38 39.5228 38 34C38 29 28 16 28 16Z" 
+        stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+  <circle cx="28" cy="36" r="3" fill="#A5D6A7" opacity="0.8" />
+
+  <!-- Brand Typography -->
+  <text x="64" y="38" font-family="'Inter', system-ui, sans-serif" font-size="24" font-weight="700" fill="#26332B" letter-spacing="-0.03em">MilkGuard</text>
+  <text x="190" y="38" font-family="'Inter', system-ui, sans-serif" font-size="24" font-weight="700" fill="#216B45" letter-spacing="-0.03em">AI</text>
+</svg>

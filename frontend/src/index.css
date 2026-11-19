@@ -1,0 +1,226 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --primary: #216B45;
+    --primary-dark: #154E31;
+    --secondary: #E8F5EC;
+    --background: #F8FAF8;
+    --card-bg: #FFFFFF;
+    --accent: #A5D6A7;
+    --text-main: #26332B;
+    --text-muted: #6E7C73;
+    --border: #E4EAE6;
+    --warning: #D98B24;
+    --warning-bg: #FFF3DC;
+    --danger: #BB5A55;
+    --danger-bg: #FAECEB;
+  }
+
+  html.dark {
+    --primary: #216B45;
+    --primary-dark: #154E31;
+    --secondary: #162B20;
+    --background: #0E1612;
+    --card-bg: #15221B;
+    --accent: #A5D6A7;
+    --text-main: #E2EDE6;
+    --text-muted: #93A69C;
+    --border: #23372C;
+    --warning: #E0983A;
+    --warning-bg: #2E2314;
+    --danger: #CF6863;
+    --danger-bg: #2E1B1B;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--background);
+    color: var(--text-main);
+  }
+}
+
+/* Custom Component Styles */
+.card-base {
+  background-color: #FFFFFF;
+  border: 1px solid #E4EAE6;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.card-hover {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-hover:hover {
+  border-color: #D1DBD5;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
+}
+
+/* -------------------------------------------------------------
+   Comprehensive Dark Mode Overrides
+   ------------------------------------------------------------- */
+.dark body {
+  background-color: #0E1612;
+  color: #E2EDE6;
+}
+
+.dark .card-base {
+  background-color: #15221B !important;
+  border-color: #23372C !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+
+.dark .card-hover:hover {
+  border-color: #355342 !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+/* Background overrides in dark mode */
+.dark .bg-\[\#F8FAF8\] {
+  background-color: #0E1612 !important;
+}
+
+.dark .bg-\[\#F8FAF8\]\/90 {
+  background-color: rgba(14, 22, 18, 0.92) !important;
+}
+
+.dark .bg-white {
+  background-color: #15221B !important;
+}
+
+.dark .hover\:bg-white:hover {
+  background-color: #1D2E24 !important;
+}
+
+.dark .hover\:bg-\[\#F8FAF8\]:hover {
+  background-color: #18271F !important;
+}
+
+.dark .bg-\[\#E8F5EC\] {
+  background-color: #162B20 !important;
+}
+
+.dark .bg-\[\#E8F5EC\]\/40 {
+  background-color: rgba(22, 43, 32, 0.4) !important;
+}
+
+.dark .bg-\[\#FFF3DC\] {
+  background-color: #2E2314 !important;
+}
+
+.dark .bg-\[\#FAECEB\] {
+  background-color: #2E1B1B !important;
+}
+
+.dark .bg-\[\#FAECEB\]\/40 {
+  background-color: rgba(46, 27, 27, 0.4) !important;
+}
+
+/* Text overrides in dark mode */
+.dark .text-\[\#26332B\] {
+  color: #E2EDE6 !important;
+}
+
+.dark .text-\[\#6E7C73\] {
+  color: #93A69C !important;
+}
+
+.dark .text-\[\#154E31\] {
+  color: #A5D6A7 !important;
+}
+
+.dark .text-\[\#3E5A47\] {
+  color: #B2C8BC !important;
+}
+
+/* Border overrides in dark mode */
+.dark .border-\[\#E4EAE6\] {
+  border-color: #23372C !important;
+}
+
+.dark .border-\[\#C3E2CD\] {
+  border-color: #254935 !important;
+}
+
+.dark .border-\[\#D1DBD5\] {
+  border-color: #355342 !important;
+}
+
+.dark .border-\[\#F3DBB0\] {
+  border-color: #4D391F !important;
+}
+
+.dark .border-\[\#EBC6C4\] {
+  border-color: #4E2827 !important;
+}
+
+.dark .divide-\[\#E4EAE6\] > :not([hidden]) ~ :not([hidden]) {
+  border-color: #23372C !important;
+}
+
+/* Layout shells in dark mode */
+.dark aside {
+  background-color: #111B15 !important;
+  border-color: #23372C !important;
+}
+
+.dark header {
+  background-color: rgba(14, 22, 18, 0.92) !important;
+  border-color: #23372C !important;
+}
+
+.dark footer {
+  background-color: #0E1612 !important;
+  border-color: #23372C !important;
+}
+
+/* Inputs, Selects & Forms in dark mode */
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="number"],
+.dark input[type="date"],
+.dark select,
+.dark textarea {
+  background-color: #18271F !important;
+  color: #E2EDE6 !important;
+  border-color: #273E32 !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #6C8276 !important;
+}
+
+/* Rings in dark mode */
+.dark .ring-white {
+  --tw-ring-color: #15221B !important;
+}
+
+.dark .ring-\[\#E8F5EC\] {
+  --tw-ring-color: #1A3024 !important;
+}
+
+/* Scrollbar customization */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #D1DBD5;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #AAB7AF;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #2D4336;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #3B5747;
+}

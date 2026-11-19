@@ -1,0 +1,307 @@
+/* MilkGuard AI - Modern SaaS Dairy Technology Theme */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary: #216B45;
+  --primary-dark: #154E31;
+  --secondary: #E8F5EC;
+  --background: #F8FAF8;
+  --card-bg: #FFFFFF;
+  --accent: #A5D6A7;
+  --text-main: #26332B;
+  --text-muted: #6E7C73;
+  --border: #E4EAE6;
+  --warning: #D98B24;
+  --warning-bg: #FFF3DC;
+  --danger: #BB5A55;
+  --danger-bg: #FAECEB;
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+html, body, [class*="css"] {
+  font-family: var(--font-family);
+  color: var(--text-main);
+  background-color: var(--background);
+}
+
+/* Hide Streamlit default decoration header & footer */
+header[data-testid="stHeader"] {
+  background-color: rgba(248, 250, 248, 0.95);
+  backdrop-filter: blur(8px);
+}
+
+footer {
+  visibility: hidden;
+}
+
+/* Sidebar Styling */
+section[data-testid="stSidebar"] {
+  background-color: #FFFFFF !important;
+  border-right: 1px solid var(--border);
+  padding-top: 1rem;
+}
+
+section[data-testid="stSidebar"] [data-testid="stSidebarNav"] {
+  padding-top: 0.5rem;
+}
+
+section[data-testid="stSidebar"] .st-emotion-cache-16txtl3 {
+  padding-top: 1rem;
+}
+
+/* Card Styling */
+.mg-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  margin-bottom: 1.25rem;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.mg-card:hover {
+  border-color: #D1DBD5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* Welcome Hero Banner */
+.mg-hero-banner {
+  background: linear-gradient(135deg, #154E31 0%, #216B45 100%);
+  border-radius: 16px;
+  padding: 2.25rem;
+  color: #FFFFFF;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(21, 78, 49, 0.15);
+}
+
+.mg-hero-banner h1 {
+  color: #FFFFFF !important;
+  font-size: 1.85rem;
+  font-weight: 700;
+  margin: 0.25rem 0 0.5rem 0;
+  letter-spacing: -0.02em;
+}
+
+.mg-hero-banner p {
+  color: #E2EDE6 !important;
+  font-size: 0.95rem;
+  max-width: 580px;
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
+}
+
+.mg-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* Metric / Stat Card */
+.mg-stat-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mg-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.mg-stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.mg-stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.mg-stat-icon.green { background: #E8F5EC; color: #216B45; }
+.mg-stat-icon.amber { background: #FFF3DC; color: #D98B24; }
+.mg-stat-icon.red   { background: #FAECEB; color: #BB5A55; }
+.mg-stat-icon.blue  { background: #EBF3FC; color: #2E72D2; }
+
+.mg-stat-value {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.mg-stat-label {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+.mg-stat-meta {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Quality Badges */
+.mg-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.mg-badge-high {
+  background-color: var(--secondary);
+  color: var(--primary);
+  border: 1px solid #C3E2CD;
+}
+
+.mg-badge-medium {
+  background-color: var(--warning-bg);
+  color: var(--warning);
+  border: 1px solid #F3DBB0;
+}
+
+.mg-badge-low {
+  background-color: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid #EBC6C4;
+}
+
+.mg-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.mg-dot-high { background-color: var(--primary); }
+.mg-dot-medium { background-color: var(--warning); }
+.mg-dot-low { background-color: var(--danger); }
+
+/* Prediction Result Showcase */
+.mg-result-card {
+  border-radius: 16px;
+  padding: 1.75rem;
+  border: 1px solid var(--border);
+  margin-top: 1rem;
+}
+
+.mg-result-card.high {
+  background: #FAFDFB;
+  border-color: #A5D6A7;
+}
+
+.mg-result-card.medium {
+  background: #FFFCF7;
+  border-color: #F8D8A3;
+}
+
+.mg-result-card.low {
+  background: #FDF9F9;
+  border-color: #F1BDBB;
+}
+
+/* Custom buttons */
+button.st-emotion-cache-19rxjzo, button.st-emotion-cache-13m0sy9 {
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  transition: all 0.15s ease !important;
+}
+
+/* Primary Button in Theme */
+div[data-testid="stFormSubmitButton"] > button, 
+button[kind="primary"] {
+  background-color: var(--primary) !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 0.6rem 1.4rem !important;
+  font-weight: 600 !important;
+}
+
+div[data-testid="stFormSubmitButton"] > button:hover,
+button[kind="primary"]:hover {
+  background-color: var(--primary-dark) !important;
+  box-shadow: 0 2px 8px rgba(33, 107, 69, 0.25) !important;
+}
+
+/* Secondary Button */
+button[kind="secondary"] {
+  border-radius: 8px !important;
+  border: 1px solid var(--border) !important;
+  background-color: #FFFFFF !important;
+  color: var(--text-main) !important;
+}
+
+/* Tables */
+div[data-testid="stDataFrame"] {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Form inputs */
+div[data-testid="stNumberInput"] input,
+div[data-testid="stTextInput"] input,
+div[data-testid="stSelectbox"] select {
+  border-radius: 8px !important;
+  border-color: var(--border) !important;
+}
+
+/* Callout boxes */
+.mg-notice-box {
+  background-color: var(--warning-bg);
+  border: 1px solid #F3DBB0;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  color: #7A4E0B;
+  font-size: 0.85rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-top: 1rem;
+}
+
+.mg-insight-box {
+  background-color: var(--secondary);
+  border: 1px solid #C3E2CD;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  color: var(--primary-dark);
+  font-size: 0.88rem;
+  margin-bottom: 1.25rem;
+}
+
