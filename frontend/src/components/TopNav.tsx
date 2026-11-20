@@ -24,6 +24,7 @@ export const TopNav: React.FC<TopNavProps> = ({
     analysis: 'Milk Quality Analysis',
     history: 'Prediction History',
     analytics: 'Analytics & Reports',
+    training: 'Model Training & Evaluation',
     about: 'About the Model',
     settings: 'Settings',
   };

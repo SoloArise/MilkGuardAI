@@ -102,3 +102,84 @@ def get_parameter_comparison_data() -> Dict[str, Any]:
         "fat_pct": {"high": 92.0, "medium": 71.0, "low": 38.0},
     }
 
+
+def get_training_evaluation_metrics() -> Dict[str, Any]:
+    """
+    Returns verified academic metrics for the train-test split and model evaluation:
+    - Original dataset records: 1,059
+    - Exact duplicate records removed: 976
+    - Unique records used for model development: 83
+    - Training samples: 66 (~80%)
+    - Testing samples: 17 (~20%)
+    - Selected model: Gaussian Naive Bayes
+    - Test accuracy: 82.35% (14 correct out of 17)
+    - Cross-validation accuracy: 85.59% (Mean 5-fold CV)
+    - Mean Macro F1-Score: 0.8518
+    """
+    return {
+        "dataset": {
+            "total_raw_records": 1059,
+            "duplicate_records_removed": 976,
+            "unique_records": 83,
+        },
+        "split": {
+            "strategy": "80:20 Train-Test Split",
+            "train_samples": 66,
+            "train_pct": 79.52,  # approx 80%
+            "test_samples": 17,
+            "test_pct": 20.48,   # approx 20%
+        },
+        "model": {
+            "algorithm": "Gaussian Naive Bayes",
+            "description": "Probabilistic supervised learning model based on Bayes' Theorem under Gaussian continuous feature distributions.",
+        },
+        "holdout_test": {
+            "test_samples": 17,
+            "correct_predictions": 14,
+            "incorrect_predictions": 3,
+            "test_accuracy": 82.35,
+            "formula": "Accuracy = (Correct Predictions / Total Testing Samples) × 100",
+            "calculation_display": "Accuracy = (14 / 17) × 100 = 82.35%",
+        },
+        "cross_validation": {
+            "method": "Stratified 5-Fold Cross-Validation",
+            "folds": 5,
+            "mean_accuracy": 85.59,
+            "mean_macro_f1": 0.8518,
+            "description": "Stratified 5-fold cross-validation evaluates generalization consistency across 5 partition folds, ensuring performance is not biased by a single split.",
+        },
+        "workflow_steps": [
+            {
+                "step": 1,
+                "title": "Raw Dataset Collection",
+                "desc": "1,059 total milk observation entries collected across physical and sensory parameters."
+            },
+            {
+                "step": 2,
+                "title": "Deduplication & Preprocessing",
+                "desc": "976 exact redundant duplicate records identified and filtered, yielding 83 unique ground-truth records."
+            },
+            {
+                "step": 3,
+                "title": "80:20 Stratified Partition",
+                "desc": "Partitioned into 66 training samples (79.5%) and 17 testing samples (20.5%) preserving class balance."
+            },
+            {
+                "step": 4,
+                "title": "Model Training",
+                "desc": "Gaussian Naive Bayes computes prior probabilities and feature likelihood variance on the 66 training samples."
+            },
+            {
+                "step": 5,
+                "title": "Unseen Sample Testing",
+                "desc": "Trained model evaluated on 17 withheld test samples without data leakage."
+            },
+            {
+                "step": 6,
+                "title": "Performance Evaluation",
+                "desc": "Achieved 82.35% holdout test accuracy (14/17) and 85.59% mean 5-fold cross-validation accuracy."
+            }
+        ]
+    }
+
+

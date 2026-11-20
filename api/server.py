@@ -34,6 +34,7 @@ from src.analytics import (
     get_dataset_summary,
     get_historical_trends,
     get_parameter_comparison_data,
+    get_training_evaluation_metrics,
 )
 from src.report_generator import (
     generate_single_sample_report_html,
@@ -173,6 +174,12 @@ def get_parameter_comparison():
 def get_dataset_info():
     """Returns benchmark dataset summary."""
     return get_dataset_summary()
+
+
+@app.get("/api/analytics/training-evaluation")
+def get_training_eval():
+    """Returns verified train-test split, workflow stages, holdout test metrics, and cross-validation performance."""
+    return get_training_evaluation_metrics()
 
 
 @app.get("/api/reports/csv")

@@ -7,6 +7,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { AnalysisPage } from './pages/AnalysisPage';
 import { HistoryPage } from './pages/HistoryPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
+import { ModelTrainingPage } from './pages/ModelTrainingPage';
 import { AboutModelPage } from './pages/AboutModelPage';
 import { SettingsPage } from './pages/SettingsPage';
 
@@ -318,6 +319,8 @@ export const App: React.FC = () => {
               onDownloadReport={handleDownloadBatchReport}
             />
           )}
+
+          {currentPage === 'training' && <ModelTrainingPage />}
 
           {currentPage === 'about' && <AboutModelPage />}
 

@@ -12,6 +12,7 @@ import {
   IconShield,
   IconMore,
   IconClose,
+  IconLayers,
 } from './Icons';
 
 interface SidebarProps {
@@ -34,6 +35,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'analysis' as Page, label: 'Milk Quality Analysis', icon: IconFlask },
     { id: 'history' as Page, label: 'Prediction History', icon: IconClock, badge: historyCount },
     { id: 'analytics' as Page, label: 'Analytics & Reports', icon: IconBarChart },
+    { id: 'training' as Page, label: 'Model Training & Evaluation', icon: IconLayers },
     { id: 'about' as Page, label: 'About the Model', icon: IconCpu },
   ];
 

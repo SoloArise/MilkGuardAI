@@ -1,6 +1,45 @@
-export type Page = 'dashboard' | 'analysis' | 'history' | 'analytics' | 'about' | 'settings';
+export type Page = 'dashboard' | 'analysis' | 'history' | 'analytics' | 'training' | 'about' | 'settings';
 
 export type MilkQuality = 'high' | 'medium' | 'low';
+
+export interface TrainingEvaluationData {
+  dataset: {
+    total_raw_records: number;
+    duplicate_records_removed: number;
+    unique_records: number;
+  };
+  split: {
+    strategy: string;
+    train_samples: number;
+    train_pct: number;
+    test_samples: number;
+    test_pct: number;
+  };
+  model: {
+    algorithm: string;
+    description: string;
+  };
+  holdout_test: {
+    test_samples: number;
+    correct_predictions: number;
+    incorrect_predictions: number;
+    test_accuracy: number;
+    formula: string;
+    calculation_display: string;
+  };
+  cross_validation: {
+    method: string;
+    folds: number;
+    mean_accuracy: number;
+    mean_macro_f1: number;
+    description: string;
+  };
+  workflow_steps: Array<{
+    step: number;
+    title: string;
+    desc: string;
+  }>;
+}
 
 export interface SampleParameters {
   pH: number;

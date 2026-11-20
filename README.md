@@ -197,8 +197,9 @@ tests/test_prediction.py::test_prediction_low_quality PASSED
 2. **Milk Quality Analysis:** Interactive 7-parameter testing form with real-time numeric bounds validation, segmented controls, model confidence progress indicators, and instant certificate downloads.
 3. **Prediction History & Data Management:** SQLite persistence with sample search, quality filtering, date filtering, CSV export, single sample deletion, and **one-click "Clear All Data"** with safety confirmation.
 4. **Analytics & Reports:** 12-week quality trends, chemical parameter comparisons across grades (pH, temperature, fat percentage), and executive printable HTML reports.
-5. **About the Model:** Architectural overview, ensemble tree topology, feature importance breakdown, and responsible AI usage guidelines.
-6. **Settings & Themes:** Profile management, workspace configuration, automated low-quality alerts, and **full Dark Mode / Light Mode toggle** with persistent preferences.
+5. **Model Training & Evaluation Dashboard:** In-depth academic demonstration of dataset deduplication (976 duplicates removed from 1,059 to 83 unique records), 80:20 train-test partition (66 train / 17 test), Gaussian Naive Bayes likelihood mechanics, holdout test performance (14 correct / 3 incorrect = 82.35% accuracy), step-by-step mathematical formulation, and stratified 5-fold cross-validation (85.59% accuracy, 0.8518 macro F1).
+6. **About the Model:** Architectural overview, ensemble tree topology, feature importance breakdown, and responsible AI usage guidelines.
+7. **Settings & Themes:** Profile management, workspace configuration, automated low-quality alerts, and **full Dark Mode / Light Mode toggle** with persistent preferences.
 
 ---
 

@@ -13,6 +13,7 @@ from api.server import (
     get_trends,
     get_parameter_comparison,
     get_dataset_info,
+    get_training_eval,
     SampleInputRequest,
     seed_demo_data_if_needed,
 )
@@ -68,6 +69,19 @@ def test_api_analytics():
     dataset_info = get_dataset_info()
     assert dataset_info["status"] == "available"
     assert dataset_info["total_samples"] == 1059
+
+    training_eval = get_training_eval()
+    assert training_eval["dataset"]["total_raw_records"] == 1059
+    assert training_eval["dataset"]["duplicate_records_removed"] == 976
+    assert training_eval["dataset"]["unique_records"] == 83
+    assert training_eval["split"]["train_samples"] == 66
+    assert training_eval["split"]["test_samples"] == 17
+    assert training_eval["model"]["algorithm"] == "Gaussian Naive Bayes"
+    assert training_eval["holdout_test"]["correct_predictions"] == 14
+    assert training_eval["holdout_test"]["incorrect_predictions"] == 3
+    assert training_eval["holdout_test"]["test_accuracy"] == 82.35
+    assert training_eval["cross_validation"]["mean_accuracy"] == 85.59
+    assert training_eval["cross_validation"]["mean_macro_f1"] == 0.8518
 
 
 def test_api_clear_all_predictions():
