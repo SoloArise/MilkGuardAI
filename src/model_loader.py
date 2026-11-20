@@ -136,12 +136,21 @@ class ModelLoader:
             for col, imp in zip(self.feature_columns, self._model.feature_importances_):
                 feature_importances[col] = round(float(imp), 4)
 
+        extra_params: dict = {}
+        if "n_estimators" in params:
+            extra_params["n_estimators"] = params["n_estimators"]
+        if "var_smoothing" in params:
+            extra_params["var_smoothing"] = params["var_smoothing"]
+        if "C" in params or "kernel" in params:
+            extra_params["C"] = params.get("C")
+            extra_params["kernel"] = params.get("kernel")
+
         return {
             "status": "loaded",
             "model_path": str(self._loaded_path),
             "algorithm": type(self._model).__name__,
-            "n_estimators": params.get("n_estimators", 200),
-            "random_state": params.get("random_state", 42),
+            "extra_params": extra_params,
+            "random_state": params.get("random_state"),
             "feature_columns": self.feature_columns,
             "classes": [str(c) for c in self.classes],
             "feature_importances": feature_importances,

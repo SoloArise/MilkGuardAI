@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { PredictionResult, SampleParameters } from '../types';
+import React, { useEffect, useState, useRef } from 'react';
+import { PredictionResult, SampleParameters, TrainingEvaluationData } from '../types';
 import {
   IconSparkle,
   IconShield,
@@ -12,6 +12,33 @@ interface AnalysisPageProps {
   onPredictionComplete: (result: PredictionResult) => void;
   onNavigateHistory: () => void;
 }
+
+interface HoldoutPerformance {
+  modelName: string;
+  modelPath: string;
+  accuracy: number;
+  totalSamples: number;
+  correctPredictions: number;
+  incorrectPredictions: number;
+  trainingSamples: number;
+  testingSamples: number;
+}
+
+const getEvaluationModelKey = (algorithm: string): string | null => {
+  const normalized = algorithm.toLowerCase().replace(/[_\s-]/g, '');
+  if (normalized.includes('randomforest')) return 'random_forest';
+  if (normalized.includes('gaussiannb') || normalized === 'gnb') return 'gaussian_nb';
+  // SVC / Support Vector: covers bare 'SVC', sklearn Pipeline wrapping SVC, etc.
+  if (normalized === 'svc' || normalized === 'pipeline' || normalized.includes('supportvector') || normalized.includes('svc')) return 'svm';
+  return null;
+};
+
+const getEvaluationModelName = (key: string): string => {
+  if (key === 'random_forest') return 'Random Forest Classifier';
+  if (key === 'gaussian_nb') return 'Gaussian Naive Bayes';
+  if (key === 'svm') return 'Support Vector Machine';
+  return key;
+};
 
 export const AnalysisPage: React.FC<AnalysisPageProps> = ({
   onPredictionComplete,
@@ -31,8 +58,81 @@ export const AnalysisPage: React.FC<AnalysisPageProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState<boolean>(false);
   const [result, setResult] = useState<PredictionResult | null>(null);
+  const [holdoutPerformance, setHoldoutPerformance] = useState<HoldoutPerformance | null>(null);
+  const [holdoutError, setHoldoutError] = useState<string | null>(null);
+  const [holdoutLoading, setHoldoutLoading] = useState<boolean>(true);
 
   const resultRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const loadHoldoutPerformance = async () => {
+      try {
+        const [statusResponse, evaluationResponse] = await Promise.all([
+          fetch('/api/status', { signal: controller.signal }),
+          fetch('/api/analytics/training-evaluation', { signal: controller.signal }),
+        ]);
+
+        // Parse JSON only after confirming the response status to get accurate error messages.
+        if (!statusResponse.ok) {
+          const errBody = await statusResponse.json().catch(() => ({}));
+          throw new Error(errBody?.detail || 'Production model status is unavailable.');
+        }
+        if (!evaluationResponse.ok) {
+          const errBody = await evaluationResponse.json().catch(() => ({}));
+          throw new Error(errBody?.detail || 'Generated evaluation results are unavailable.');
+        }
+
+        const status = await statusResponse.json();
+        const evaluation = await evaluationResponse.json() as TrainingEvaluationData;
+
+        if (!status.is_model_loaded || !status.metadata?.algorithm) {
+          throw new Error('The production model identity could not be confirmed.');
+        }
+
+        const modelKey = getEvaluationModelKey(status.metadata.algorithm);
+        const modelResult = modelKey ? evaluation.models?.[modelKey] : null;
+        if (!modelKey || !modelResult) {
+          throw new Error(
+            `No holdout evaluation is available for the loaded production model (${status.metadata.algorithm}).`,
+          );
+        }
+
+        const matrix = modelResult.confusion_matrix.matrix;
+        const matrixTotal = matrix.flat().reduce((sum, value) => sum + value, 0);
+        const correctPredictions = matrix.reduce(
+          (sum, row, index) => sum + (row[index] || 0),
+          0,
+        );
+        const totalSamples = evaluation.metadata.testing_sample_count;
+        if (!totalSamples || matrixTotal !== totalSamples) {
+          throw new Error('The holdout evaluation report has inconsistent testing sample counts.');
+        }
+
+        setHoldoutPerformance({
+          modelName: getEvaluationModelName(modelKey),
+          modelPath: status.metadata.model_path || 'Path unavailable',
+          accuracy: modelResult.holdout_metrics.accuracy,
+          totalSamples,
+          correctPredictions,
+          incorrectPredictions: totalSamples - correctPredictions,
+          trainingSamples: evaluation.metadata.training_sample_count,
+          testingSamples: totalSamples,
+        });
+        setHoldoutError(null);
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        setHoldoutPerformance(null);
+        setHoldoutError(error instanceof Error ? error.message : 'Holdout evaluation is unavailable.');
+      } finally {
+        if (!controller.signal.aborted) setHoldoutLoading(false);
+      }
+    };
+
+    loadHoldoutPerformance();
+    return () => controller.abort();
+  }, []);
 
   const handleClearAll = () => {
     setPh('');
@@ -680,7 +780,7 @@ export const AnalysisPage: React.FC<AnalysisPageProps> = ({
                 }}
               >
                 <div className="text-[10px] font-bold uppercase tracking-wider text-[#6E7C73]">
-                  Model confidence
+                  Individual prediction confidence
                 </div>
                 <div
                   className="text-2xl font-black mt-0.5 tracking-tight"
@@ -698,7 +798,7 @@ export const AnalysisPage: React.FC<AnalysisPageProps> = ({
                   />
                 </div>
                 <div className="text-[10px] text-[#6E7C73] font-medium mt-1">
-                  Random Forest Classifier
+                  This sample only; not overall accuracy
                 </div>
               </div>
             </div>
@@ -773,9 +873,76 @@ export const AnalysisPage: React.FC<AnalysisPageProps> = ({
               </div>
             </div>
           </div>
+          <HoldoutPerformanceSection
+            performance={holdoutPerformance}
+            loading={holdoutLoading}
+            error={holdoutError}
+          />
         </div>
       )}
     </div>
   );
 };
+
+const HoldoutPerformanceSection: React.FC<{
+  performance: HoldoutPerformance | null;
+  loading: boolean;
+  error: string | null;
+}> = ({ performance, loading, error }) => (
+  <section className="card-base mt-4 border border-[#D7E7DC] p-6 sm:p-8" aria-labelledby="holdout-performance-title">
+    <div className="border-b border-[#E4EAE6] pb-4">
+      <div className="text-[10px] font-bold uppercase tracking-wider text-[#216B45]">Evaluation report</div>
+      <h3 id="holdout-performance-title" className="mt-1 text-xl font-extrabold tracking-tight text-[#26332B]">
+        Model Performance — Holdout Test Results
+      </h3>
+      <p className="mt-1 text-xs text-[#6E7C73]">
+        Overall performance on the evaluation holdout; separate from confidence for the individual sample above.
+      </p>
+    </div>
+
+    {loading ? (
+      <p className="mt-4 text-sm text-[#6E7C73]">Loading holdout evaluation…</p>
+    ) : error || !performance ? (
+      <div className="mt-4 rounded-xl border border-[#F3DBB0] bg-[#FFF3DC] p-4 text-sm text-[#7A4E0B]" role="status">
+        <strong>Holdout results unavailable.</strong> {error || 'No matching production model evaluation was found.'}
+      </div>
+    ) : (
+      <>
+        <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <div className="text-xs font-bold uppercase tracking-wide text-[#6E7C73]">Production model</div>
+            <div className="mt-1 text-lg font-bold text-[#26332B]">{performance.modelName}</div>
+            <div className="mt-1 break-all text-[11px] text-[#6E7C73]">{performance.modelPath}</div>
+          </div>
+          <div className="rounded-xl border border-[#C3E2CD] bg-[#E8F5EC] px-5 py-3 text-center">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-[#216B45]">Holdout accuracy</div>
+            <div className="mt-1 text-3xl font-black text-[#154E31]">{(performance.accuracy * 100).toFixed(2)}%</div>
+          </div>
+        </div>
+
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <HoldoutStat label="Testing samples" value={performance.totalSamples} />
+          <HoldoutStat label="Correct predictions" value={performance.correctPredictions} />
+          <HoldoutStat label="Incorrect predictions" value={performance.incorrectPredictions} />
+          <HoldoutStat label="Training / testing" value={`${performance.trainingSamples} / ${performance.testingSamples}`} />
+        </div>
+
+        <div className="mt-4 rounded-xl bg-[#F8FAF8] p-4">
+          <div className="text-[10px] font-bold uppercase tracking-wide text-[#6E7C73]">Accuracy calculation</div>
+          <div className="mt-1 font-mono text-sm font-semibold text-[#26332B]">
+            {performance.correctPredictions} / {performance.totalSamples} × 100 ={' '}
+            {((performance.correctPredictions / performance.totalSamples) * 100).toFixed(2)}%
+          </div>
+        </div>
+      </>
+    )}
+  </section>
+);
+
+const HoldoutStat: React.FC<{ label: string; value: number | string }> = ({ label, value }) => (
+  <div className="rounded-xl border border-[#E4EAE6] bg-white p-3">
+    <div className="text-[10px] font-bold uppercase tracking-wide text-[#6E7C73]">{label}</div>
+    <div className="mt-1 text-lg font-extrabold text-[#26332B]">{value}</div>
+  </div>
+);
 

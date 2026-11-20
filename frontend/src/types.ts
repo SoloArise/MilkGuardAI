@@ -3,41 +3,50 @@ export type Page = 'dashboard' | 'analysis' | 'history' | 'analytics' | 'trainin
 export type MilkQuality = 'high' | 'medium' | 'low';
 
 export interface TrainingEvaluationData {
-  dataset: {
-    total_raw_records: number;
-    duplicate_records_removed: number;
-    unique_records: number;
+  metadata: {
+    dataset_filename: string;
+    dataset_sha256: string;
+    original_sample_count: number;
+    duplicate_rows_removed: number;
+    deduplicated_sample_count: number;
+    original_class_distribution: Record<string, number>;
+    deduplicated_class_distribution: Record<string, number>;
+    random_seed: number;
+    train_test_split: string;
+    cross_validation: string;
+    training_sample_count: number;
+    testing_sample_count: number;
+    training_class_distribution: Record<string, number>;
+    testing_class_distribution: Record<string, number>;
+    python_version: string;
+    scikit_learn_version: string;
+    evaluation_timestamp_utc: string;
+    small_unique_dataset_notice: string;
+    model_selection_note: string;
+    validation_note: string;
   };
-  split: {
-    strategy: string;
-    train_samples: number;
-    train_pct: number;
-    test_samples: number;
-    test_pct: number;
-  };
-  model: {
-    algorithm: string;
-    description: string;
-  };
-  holdout_test: {
-    test_samples: number;
-    correct_predictions: number;
-    incorrect_predictions: number;
-    test_accuracy: number;
-    formula: string;
-    calculation_display: string;
-  };
-  cross_validation: {
-    method: string;
-    folds: number;
-    mean_accuracy: number;
-    mean_macro_f1: number;
-    description: string;
-  };
-  workflow_steps: Array<{
-    step: number;
-    title: string;
-    desc: string;
+  models: Record<string, {
+    python_class: string;
+    model_parameters: Record<string, unknown>;
+    training_seconds: number;
+    prediction_seconds: number;
+    holdout_metrics: Record<string, number>;
+    cross_validation_on_training_partition: Record<string, {
+      fold_scores: number[];
+      mean: number;
+      std: number;
+    }>;
+    confusion_matrix: {
+      labels: string[];
+      matrix: number[][];
+    };
+    classification_report: Record<string, number | {
+      precision: number;
+      recall: number;
+      f1_score?: number;
+      'f1-score'?: number;
+      support: number;
+    }>;
   }>;
 }
 

@@ -3,6 +3,8 @@ Tests for FastAPI Backend Router Functions
 """
 
 import pytest
+from fastapi import HTTPException
+import src.analytics as analytics
 from api.server import (
     get_system_status,
     get_stats,
@@ -71,17 +73,34 @@ def test_api_analytics():
     assert dataset_info["total_samples"] == 1059
 
     training_eval = get_training_eval()
-    assert training_eval["dataset"]["total_raw_records"] == 1059
-    assert training_eval["dataset"]["duplicate_records_removed"] == 976
-    assert training_eval["dataset"]["unique_records"] == 83
-    assert training_eval["split"]["train_samples"] == 66
-    assert training_eval["split"]["test_samples"] == 17
-    assert training_eval["model"]["algorithm"] == "Gaussian Naive Bayes"
-    assert training_eval["holdout_test"]["correct_predictions"] == 14
-    assert training_eval["holdout_test"]["incorrect_predictions"] == 3
-    assert training_eval["holdout_test"]["test_accuracy"] == 82.35
-    assert training_eval["cross_validation"]["mean_accuracy"] == 85.59
-    assert training_eval["cross_validation"]["mean_macro_f1"] == 0.8518
+    assert training_eval["metadata"]["dataset_sha256"]
+    assert training_eval["metadata"]["evaluation_timestamp_utc"]
+    assert set(training_eval["models"]) == {"random_forest", "gaussian_nb", "svm"}
+    for model_result in training_eval["models"].values():
+        assert set(model_result["holdout_metrics"]) == {
+            "accuracy",
+            "balanced_accuracy",
+            "macro_precision",
+            "macro_recall",
+            "macro_f1",
+        }
+        assert len(model_result["confusion_matrix"]["matrix"]) == 3
+        assert "macro avg" in model_result["classification_report"]
+        assert len(model_result["cross_validation_on_training_partition"]["accuracy"]["fold_scores"]) == 5
+
+
+def test_training_evaluation_unavailable(monkeypatch, tmp_path):
+    monkeypatch.setattr(
+        analytics,
+        "TRAINING_EVALUATION_REPORT_PATH",
+        tmp_path / "missing_model_comparison.json",
+    )
+
+    with pytest.raises(HTTPException) as exc_info:
+        get_training_eval()
+
+    assert getattr(exc_info.value, "status_code", None) == 503
+    assert "unavailable" in str(exc_info.value.detail).lower()
 
 
 def test_api_clear_all_predictions():

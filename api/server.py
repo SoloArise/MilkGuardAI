@@ -178,8 +178,11 @@ def get_dataset_info():
 
 @app.get("/api/analytics/training-evaluation")
 def get_training_eval():
-    """Returns verified train-test split, workflow stages, holdout test metrics, and cross-validation performance."""
-    return get_training_evaluation_metrics()
+    """Return generated model comparison results or a clear unavailable response."""
+    try:
+        return get_training_evaluation_metrics()
+    except (FileNotFoundError, ValueError) as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
 
 
 @app.get("/api/reports/csv")

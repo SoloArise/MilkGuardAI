@@ -4,12 +4,38 @@ Computes dataset metrics, historical trends, parameter correlations, and model m
 """
 
 from typing import Dict, Any, List, Optional
+import json
+from pathlib import Path
 import pandas as pd
 import numpy as np
 
 from config.settings import DATASET_PATH, MODEL_FEATURE_COLUMNS
 from src.database import get_all_predictions, get_statistics
 from src.model_loader import get_model_loader
+
+def _resolve_training_evaluation_report() -> Path:
+    """
+    Return the path to the most recent model_comparison.json.
+
+    Priority (first file that exists wins):
+      1. reports/model_comparison.json          – canonical output from train_evaluate.py
+      2. reports/<any-subdir>/model_comparison.json – secondary run kept for reference
+    """
+    base = Path(__file__).resolve().parents[1] / "reports"
+    primary = base / "model_comparison.json"
+    if primary.is_file():
+        return primary
+    # Walk one level of subdirectories for a fallback copy.
+    for sub in sorted(base.iterdir()):
+        if sub.is_dir():
+            candidate = sub / "model_comparison.json"
+            if candidate.is_file():
+                return candidate
+    # Return the canonical path so the FileNotFoundError message is actionable.
+    return primary
+
+
+TRAINING_EVALUATION_REPORT_PATH = _resolve_training_evaluation_report()
 
 
 def get_dataset_summary() -> Dict[str, Any]:
@@ -104,82 +130,47 @@ def get_parameter_comparison_data() -> Dict[str, Any]:
 
 
 def get_training_evaluation_metrics() -> Dict[str, Any]:
+    """Load the single generated evaluation report used by both dashboards.
+
+    Missing or malformed reports are surfaced to callers; fabricated fallbacks
+    are intentionally not provided.
     """
-    Returns verified academic metrics for the train-test split and model evaluation:
-    - Original dataset records: 1,059
-    - Exact duplicate records removed: 976
-    - Unique records used for model development: 83
-    - Training samples: 66 (~80%)
-    - Testing samples: 17 (~20%)
-    - Selected model: Gaussian Naive Bayes
-    - Test accuracy: 82.35% (14 correct out of 17)
-    - Cross-validation accuracy: 85.59% (Mean 5-fold CV)
-    - Mean Macro F1-Score: 0.8518
-    """
-    return {
-        "dataset": {
-            "total_raw_records": 1059,
-            "duplicate_records_removed": 976,
-            "unique_records": 83,
-        },
-        "split": {
-            "strategy": "80:20 Train-Test Split",
-            "train_samples": 66,
-            "train_pct": 79.52,  # approx 80%
-            "test_samples": 17,
-            "test_pct": 20.48,   # approx 20%
-        },
-        "model": {
-            "algorithm": "Gaussian Naive Bayes",
-            "description": "Probabilistic supervised learning model based on Bayes' Theorem under Gaussian continuous feature distributions.",
-        },
-        "holdout_test": {
-            "test_samples": 17,
-            "correct_predictions": 14,
-            "incorrect_predictions": 3,
-            "test_accuracy": 82.35,
-            "formula": "Accuracy = (Correct Predictions / Total Testing Samples) × 100",
-            "calculation_display": "Accuracy = (14 / 17) × 100 = 82.35%",
-        },
-        "cross_validation": {
-            "method": "Stratified 5-Fold Cross-Validation",
-            "folds": 5,
-            "mean_accuracy": 85.59,
-            "mean_macro_f1": 0.8518,
-            "description": "Stratified 5-fold cross-validation evaluates generalization consistency across 5 partition folds, ensuring performance is not biased by a single split.",
-        },
-        "workflow_steps": [
-            {
-                "step": 1,
-                "title": "Raw Dataset Collection",
-                "desc": "1,059 total milk observation entries collected across physical and sensory parameters."
-            },
-            {
-                "step": 2,
-                "title": "Deduplication & Preprocessing",
-                "desc": "976 exact redundant duplicate records identified and filtered, yielding 83 unique ground-truth records."
-            },
-            {
-                "step": 3,
-                "title": "80:20 Stratified Partition",
-                "desc": "Partitioned into 66 training samples (79.5%) and 17 testing samples (20.5%) preserving class balance."
-            },
-            {
-                "step": 4,
-                "title": "Model Training",
-                "desc": "Gaussian Naive Bayes computes prior probabilities and feature likelihood variance on the 66 training samples."
-            },
-            {
-                "step": 5,
-                "title": "Unseen Sample Testing",
-                "desc": "Trained model evaluated on 17 withheld test samples without data leakage."
-            },
-            {
-                "step": 6,
-                "title": "Performance Evaluation",
-                "desc": "Achieved 82.35% holdout test accuracy (14/17) and 85.59% mean 5-fold cross-validation accuracy."
-            }
-        ]
-    }
+    if not TRAINING_EVALUATION_REPORT_PATH.is_file():
+        raise FileNotFoundError(
+            "Training evaluation report is unavailable. Generate it with "
+            "scripts/train_evaluate.py. Expected file: "
+            f"{TRAINING_EVALUATION_REPORT_PATH}"
+        )
+
+    try:
+        with TRAINING_EVALUATION_REPORT_PATH.open("r", encoding="utf-8") as report_file:
+            evaluation = json.load(report_file)
+    except (json.JSONDecodeError, OSError) as exc:
+        raise ValueError(
+            f"Could not read training evaluation report at {TRAINING_EVALUATION_REPORT_PATH}: {exc}"
+        ) from exc
+
+    expected_models = {"random_forest", "gaussian_nb", "svm"}
+    if not isinstance(evaluation, dict) or not isinstance(evaluation.get("metadata"), dict):
+        raise ValueError("Training evaluation report must contain metadata and models objects.")
+    models = evaluation.get("models")
+    if not isinstance(models, dict) or set(models) != expected_models:
+        raise ValueError(
+            "Training evaluation report must contain exactly Random Forest, Gaussian NB, and SVM results."
+        )
+
+    for model_name, model_result in models.items():
+        required_sections = {
+            "python_class",
+            "model_parameters",
+            "holdout_metrics",
+            "cross_validation_on_training_partition",
+            "confusion_matrix",
+            "classification_report",
+        }
+        if not isinstance(model_result, dict) or not required_sections.issubset(model_result):
+            raise ValueError(f"Evaluation report is incomplete for model {model_name!r}.")
+
+    return evaluation
 
 

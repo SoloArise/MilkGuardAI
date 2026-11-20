@@ -70,7 +70,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               ✓ Quality checked
             </div>
             <div className="absolute -bottom-1 right-2 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-[10px] font-semibold text-[#A5D6A7] shadow-sm">
-              98.4% accuracy
+              82.4% holdout acc.
             </div>
           </div>
         </div>
